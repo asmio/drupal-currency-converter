@@ -2,10 +2,8 @@
 
 namespace Drupal\currency_converter\Controller;
 
-use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Datetime\DateFormatterInterface;
-use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\currency_converter\CurrencyListInterface;
 use Drupal\currency_converter\ExchangeRateRepositoryInterface;
 use Drupal\currency_converter\Form\RefreshRatesForm;
@@ -19,8 +17,6 @@ class RatesOverviewController extends ControllerBase {
   public function __construct(
     protected ExchangeRateRepositoryInterface $rateRepository,
     protected CurrencyListInterface $currencyList,
-    protected ConfigFactoryInterface $configFactory,
-    protected FormBuilderInterface $formBuilder,
     protected DateFormatterInterface $dateFormatter,
   ) {}
 
@@ -31,8 +27,6 @@ class RatesOverviewController extends ControllerBase {
     return new static(
       $container->get('currency_converter.rate_repository'),
       $container->get('currency_converter.currency_list'),
-      $container->get('config.factory'),
-      $container->get('form_builder'),
       $container->get('date.formatter'),
     );
   }
@@ -41,9 +35,9 @@ class RatesOverviewController extends ControllerBase {
    * Builds the rates overview page.
    */
   public function build(): array {
-    $baseCurrency = $this->configFactory->get('currency_converter.settings')->get('base_currency') ?: 'USD';
+    $baseCurrency = $this->config('currency_converter.settings')->get('base_currency') ?: 'USD';
 
-    $build['refresh_form'] = $this->formBuilder->getForm(RefreshRatesForm::class);
+    $build['refresh_form'] = $this->formBuilder()->getForm(RefreshRatesForm::class);
 
     $rates = $this->rateRepository->getAllRates();
     if (empty($rates)) {
