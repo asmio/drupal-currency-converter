@@ -2,12 +2,12 @@
 
 namespace Drupal\currency_converter;
 
-use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\currency_converter\Exception\ExchangeRateNotAvailableException;
 use Drupal\currency_converter\Money\RateExchange;
 use Money\Converter;
 use Money\Currencies\ISOCurrencies;
 use Money\Currency;
+use Money\Exception as MoneyException;
 use Money\Exception\UnresolvableCurrencyPairException;
 use Money\Formatter\DecimalMoneyFormatter;
 use Money\Parser\DecimalMoneyParser;
@@ -27,10 +27,10 @@ class CurrencyConverter implements CurrencyConverterInterface {
 
   public function __construct(
     ExchangeRateRepositoryInterface $rateRepository,
-    ConfigFactoryInterface $configFactory,
+    BaseCurrencyProviderInterface $baseCurrencyProvider,
   ) {
     $this->currencies = new ISOCurrencies();
-    $this->converter = new Converter($this->currencies, new RateExchange($rateRepository, $configFactory));
+    $this->converter = new Converter($this->currencies, new RateExchange($rateRepository, $baseCurrencyProvider));
     $this->parser = new DecimalMoneyParser($this->currencies);
     $this->formatter = new DecimalMoneyFormatter($this->currencies);
   }
@@ -38,15 +38,24 @@ class CurrencyConverter implements CurrencyConverterInterface {
   /**
    * {@inheritdoc}
    */
-  public function convert(string|float|int $amount, string $from, string $to): string {
-    $money = $this->parser->parse((string) $amount, new Currency($from));
-
+  public function convert(string|int $amount, string $from, string $to): string {
     try {
+      $money = $this->parser->parse((string) $amount, new Currency($from));
       $converted = $this->converter->convert($money, new Currency($to));
     }
     catch (UnresolvableCurrencyPairException $e) {
       throw new ExchangeRateNotAvailableException(
         sprintf('No exchange rate available to convert %s to %s.', $from, $to),
+        0,
+        $e
+      );
+    }
+    catch (MoneyException $e) {
+      // Covers e.g. UnknownCurrencyException (bad $from/$to code) and
+      // ParserException (bad $amount format) — invalid input, not a missing
+      // rate, so it gets a different exception type than the case above.
+      throw new \InvalidArgumentException(
+        sprintf('Cannot convert "%s" from %s to %s: %s', $amount, $from, $to, $e->getMessage()),
         0,
         $e
       );

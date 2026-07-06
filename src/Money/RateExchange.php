@@ -2,7 +2,7 @@
 
 namespace Drupal\currency_converter\Money;
 
-use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\currency_converter\BaseCurrencyProviderInterface;
 use Drupal\currency_converter\ExchangeRateRepositoryInterface;
 use Money\Currency;
 use Money\CurrencyPair;
@@ -21,19 +21,19 @@ class RateExchange implements Exchange {
 
   public function __construct(
     protected ExchangeRateRepositoryInterface $rateRepository,
-    protected ConfigFactoryInterface $configFactory,
+    protected BaseCurrencyProviderInterface $baseCurrencyProvider,
   ) {}
 
   /**
    * {@inheritdoc}
    */
   public function quote(Currency $baseCurrency, Currency $counterCurrency): CurrencyPair {
-    $configuredBase = $this->configFactory->get('currency_converter.settings')->get('base_currency') ?: 'USD';
+    $configuredBase = $this->baseCurrencyProvider->getCode();
 
     $baseRate = $this->resolveRate($baseCurrency, $configuredBase);
     $counterRate = $this->resolveRate($counterCurrency, $configuredBase);
 
-    if ($baseRate === NULL || $counterRate === NULL) {
+    if ($baseRate === NULL || $counterRate === NULL || bccomp($baseRate, '0', self::SCALE) === 0) {
       throw UnresolvableCurrencyPairException::createFromCurrencies($baseCurrency, $counterCurrency);
     }
 
@@ -44,12 +44,24 @@ class RateExchange implements Exchange {
 
   /**
    * Resolves a currency's stored rate relative to the configured base.
+   *
+   * Returns NULL (triggering an unresolvable pair) if there is no stored
+   * rate, or if the stored rate was fetched relative to a base currency
+   * that no longer matches the one currently configured — e.g. right after
+   * an admin changes the base currency but before the next fetch runs. Using
+   * a stale row here would silently apply the wrong ratio.
    */
   protected function resolveRate(Currency $currency, string $configuredBase): ?string {
     if ($currency->getCode() === $configuredBase) {
       return '1';
     }
-    return $this->rateRepository->getRate($currency->getCode());
+
+    $stored = $this->rateRepository->getRate($currency->getCode());
+    if ($stored === NULL || $stored['base_currency_code'] !== $configuredBase) {
+      return NULL;
+    }
+
+    return $stored['rate'];
   }
 
 }

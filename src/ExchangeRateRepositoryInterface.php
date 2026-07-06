@@ -10,8 +10,8 @@ interface ExchangeRateRepositoryInterface {
   /**
    * Replaces the stored rate for each given currency.
    *
-   * @param float[] $rates
-   *   Rates keyed by ISO 4217 currency code.
+   * @param string[] $rates
+   *   Decimal rate strings keyed by ISO 4217 currency code.
    * @param string $baseCurrency
    *   The base currency the rates are relative to.
    * @param int $timestamp
@@ -25,10 +25,11 @@ interface ExchangeRateRepositoryInterface {
    * @param string $currencyCode
    *   The ISO 4217 currency code.
    *
-   * @return string|null
-   *   The rate as a decimal string, or NULL if no rate is stored.
+   * @return array{rate: string, base_currency_code: string}|null
+   *   The stored rate and the base currency it is relative to, or NULL if
+   *   no rate is stored for this currency at all.
    */
-  public function getRate(string $currencyCode): ?string;
+  public function getRate(string $currencyCode): ?array;
 
   /**
    * Returns all stored rates.

@@ -48,8 +48,12 @@ class RefreshRatesForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $this->rateUpdater->updateNow();
-    $this->messenger()->addStatus($this->t('Currency exchange rates have been updated.'));
+    if ($this->rateUpdater->updateNow()) {
+      $this->messenger()->addStatus($this->t('Currency exchange rates have been updated.'));
+    }
+    else {
+      $this->messenger()->addError($this->t('Currency exchange rates could not be updated. Check the recent log messages for details.'));
+    }
   }
 
 }

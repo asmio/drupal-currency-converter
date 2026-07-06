@@ -17,7 +17,11 @@ interface RateUpdaterInterface {
 
   /**
    * Fetches and stores fresh rates immediately, bypassing the timer.
+   *
+   * @return bool
+   *   TRUE if rates were fetched and stored, FALSE if the update failed (API
+   *   error) or was skipped because another update was already in progress.
    */
-  public function updateNow(): void;
+  public function updateNow(): bool;
 
 }

@@ -54,7 +54,11 @@ class FreecurrencyapiClient implements ExchangeRateProviderInterface {
       throw new ApiRequestException('Unexpected response format from freecurrencyapi.com.');
     }
 
-    return array_map(static fn ($rate) => (float) $rate, $payload['data']);
+    // Format as fixed-point decimal strings (matching the numeric(18,8)
+    // storage column) rather than leaving them as PHP floats: floats risk
+    // rendering in scientific notation for very small/large rates, which
+    // would corrupt the later bcmath-based conversion math.
+    return array_map(static fn ($rate) => sprintf('%.8F', (float) $rate), $payload['data']);
   }
 
   /**

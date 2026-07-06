@@ -47,6 +47,27 @@ class RatesOverviewController extends ControllerBase {
 
     $baseCurrency = reset($rates)['base_currency_code'];
 
+    $build['table'] = [
+      '#type' => 'table',
+      '#header' => [
+        $this->t('Code'),
+        $this->t('Currency'),
+        $this->t('Rate (relative to @base)', ['@base' => $baseCurrency]),
+        $this->t('Last updated'),
+      ],
+      '#rows' => $this->buildRows($rates),
+    ];
+
+    return $build;
+  }
+
+  /**
+   * Builds the table rows from the stored rates.
+   *
+   * @param array $rates
+   *   Keyed as returned by ExchangeRateRepositoryInterface::getAllRates().
+   */
+  protected function buildRows(array $rates): array {
     $rows = [];
     foreach ($rates as $code => $info) {
       $rows[] = [
@@ -56,19 +77,7 @@ class RatesOverviewController extends ControllerBase {
         $this->dateFormatter->format($info['changed'], 'short'),
       ];
     }
-
-    $build['table'] = [
-      '#type' => 'table',
-      '#header' => [
-        $this->t('Code'),
-        $this->t('Currency'),
-        $this->t('Rate (relative to @base)', ['@base' => $baseCurrency]),
-        $this->t('Last updated'),
-      ],
-      '#rows' => $rows,
-    ];
-
-    return $build;
+    return $rows;
   }
 
 }

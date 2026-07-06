@@ -15,8 +15,9 @@ interface ExchangeRateProviderInterface {
    * @param string $baseCurrency
    *   The ISO 4217 code all returned rates should be relative to.
    *
-   * @return float[]
-   *   An array of rates keyed by ISO 4217 currency code.
+   * @return string[]
+   *   An array of fixed-point decimal rate strings keyed by ISO 4217
+   *   currency code.
    *
    * @throws \Drupal\currency_converter\Exception\ApiRequestException
    *   If the request fails or the response is malformed.

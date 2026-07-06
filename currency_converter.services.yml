@@ -6,6 +6,11 @@ services:
   currency_converter.currency_list:
     class: Drupal\currency_converter\CurrencyList
 
+  currency_converter.base_currency_provider:
+    class: Drupal\currency_converter\BaseCurrencyProvider
+    arguments:
+      - '@config.factory'
+
   currency_converter.api_client:
     class: Drupal\currency_converter\Api\FreecurrencyapiClient
     arguments:
@@ -24,13 +29,14 @@ services:
     arguments:
       - '@currency_converter.api_client'
       - '@currency_converter.rate_repository'
-      - '@config.factory'
+      - '@currency_converter.base_currency_provider'
       - '@state'
       - '@datetime.time'
+      - '@lock'
       - '@logger.channel.currency_converter'
 
   currency_converter.converter:
     class: Drupal\currency_converter\CurrencyConverter
     arguments:
       - '@currency_converter.rate_repository'
-      - '@config.factory'
+      - '@currency_converter.base_currency_provider'

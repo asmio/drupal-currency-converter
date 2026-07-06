@@ -41,14 +41,14 @@ class ExchangeRateRepository implements ExchangeRateRepositoryInterface {
   /**
    * {@inheritdoc}
    */
-  public function getRate(string $currencyCode): ?string {
-    $rate = $this->database->select(self::TABLE, 'r')
-      ->fields('r', ['rate'])
+  public function getRate(string $currencyCode): ?array {
+    $row = $this->database->select(self::TABLE, 'r')
+      ->fields('r', ['rate', 'base_currency_code'])
       ->condition('currency_code', $currencyCode)
       ->execute()
-      ->fetchField();
+      ->fetchAssoc();
 
-    return $rate === FALSE ? NULL : $rate;
+    return $row ?: NULL;
   }
 
   /**
