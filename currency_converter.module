@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * @file
+ * Hook implementations for the Currency Converter module.
+ */
+
+/**
+ * Implements hook_cron().
+ */
+function currency_converter_cron() {
+  \Drupal::service('currency_converter.rate_updater')->updateIfDue();
+}

@@ -1,0 +1,15 @@
+currency_converter.rates:
+  path: '/admin/config/services/currency-converter'
+  defaults:
+    _controller: '\Drupal\currency_converter\Controller\RatesOverviewController::build'
+    _title: 'Currency exchange rates'
+  requirements:
+    _permission: 'view currency converter rates'
+
+currency_converter.settings:
+  path: '/admin/config/services/currency-converter/settings'
+  defaults:
+    _form: '\Drupal\currency_converter\Form\SettingsForm'
+    _title: 'Currency Converter settings'
+  requirements:
+    _permission: 'administer currency converter'

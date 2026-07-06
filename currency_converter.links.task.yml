@@ -1,0 +1,9 @@
+currency_converter.rates:
+  title: 'Overview'
+  route_name: currency_converter.rates
+  base_route: currency_converter.rates
+
+currency_converter.settings:
+  title: 'Settings'
+  route_name: currency_converter.settings
+  base_route: currency_converter.rates

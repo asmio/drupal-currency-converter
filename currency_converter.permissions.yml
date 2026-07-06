@@ -1,0 +1,8 @@
+administer currency converter:
+  title: 'Administer Currency Converter'
+  description: 'Configure the freecurrencyapi.com API key and base currency.'
+  restrict access: true
+
+view currency converter rates:
+  title: 'View currency exchange rates'
+  description: 'View the stored exchange rates report.'

@@ -1,0 +1,36 @@
+services:
+  logger.channel.currency_converter:
+    parent: logger.channel_base
+    arguments: ['currency_converter']
+
+  currency_converter.currency_list:
+    class: Drupal\currency_converter\CurrencyList
+
+  currency_converter.api_client:
+    class: Drupal\currency_converter\Api\FreecurrencyapiClient
+    arguments:
+      - '@http_client'
+      - '@config.factory'
+      - '@key.repository'
+      - '@logger.channel.currency_converter'
+
+  currency_converter.rate_repository:
+    class: Drupal\currency_converter\ExchangeRateRepository
+    arguments:
+      - '@database'
+
+  currency_converter.rate_updater:
+    class: Drupal\currency_converter\RateUpdater
+    arguments:
+      - '@currency_converter.api_client'
+      - '@currency_converter.rate_repository'
+      - '@config.factory'
+      - '@state'
+      - '@datetime.time'
+      - '@logger.channel.currency_converter'
+
+  currency_converter.converter:
+    class: Drupal\currency_converter\CurrencyConverter
+    arguments:
+      - '@currency_converter.rate_repository'
+      - '@config.factory'

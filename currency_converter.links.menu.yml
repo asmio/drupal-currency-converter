@@ -1,0 +1,5 @@
+currency_converter.rates:
+  title: 'Currency Converter'
+  description: 'View stored currency exchange rates.'
+  route_name: currency_converter.rates
+  parent: system.admin_config_services

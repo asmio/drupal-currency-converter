@@ -1,0 +1,51 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Currency Converter module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function currency_converter_schema() {
+  $schema['currency_converter_rate'] = [
+    'description' => 'Stores the latest exchange rate for each currency relative to the configured base currency.',
+    'fields' => [
+      'currency_code' => [
+        'description' => 'The ISO 4217 currency code.',
+        'type' => 'varchar_ascii',
+        'length' => 3,
+        'not null' => TRUE,
+      ],
+      'rate' => [
+        'description' => 'The exchange rate relative to the base currency.',
+        'type' => 'numeric',
+        'precision' => 18,
+        'scale' => 8,
+        'not null' => TRUE,
+      ],
+      'base_currency_code' => [
+        'description' => 'The base currency code that was active when this rate was fetched.',
+        'type' => 'varchar_ascii',
+        'length' => 3,
+        'not null' => TRUE,
+      ],
+      'changed' => [
+        'description' => 'The Unix timestamp of the last successful fetch.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ],
+    ],
+    'primary key' => ['currency_code'],
+  ];
+
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function currency_converter_uninstall() {
+  \Drupal::state()->delete('currency_converter.last_updated');
+}

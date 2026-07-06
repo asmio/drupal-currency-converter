@@ -1,0 +1,7 @@
+name: Currency Converter
+type: module
+description: 'Stores daily currency exchange rates from freecurrencyapi.com and provides a conversion service.'
+package: Custom
+core_version_requirement: ^10 || ^11
+dependencies:
+  - key:key
