@@ -35,8 +35,6 @@ class RatesOverviewController extends ControllerBase {
    * Builds the rates overview page.
    */
   public function build(): array {
-    $baseCurrency = $this->config('currency_converter.settings')->get('base_currency') ?: 'USD';
-
     $build['refresh_form'] = $this->formBuilder()->getForm(RefreshRatesForm::class);
 
     $rates = $this->rateRepository->getAllRates();
@@ -47,13 +45,14 @@ class RatesOverviewController extends ControllerBase {
       return $build;
     }
 
+    $baseCurrency = reset($rates)['base_currency_code'];
+
     $rows = [];
     foreach ($rates as $code => $info) {
       $rows[] = [
         $code,
         $this->currencyList->getLabel($code) ?? $code,
         $info['rate'],
-        $info['base_currency_code'],
         $this->dateFormatter->format($info['changed'], 'short'),
       ];
     }
@@ -64,7 +63,6 @@ class RatesOverviewController extends ControllerBase {
         $this->t('Code'),
         $this->t('Currency'),
         $this->t('Rate (relative to @base)', ['@base' => $baseCurrency]),
-        $this->t('Base currency'),
         $this->t('Last updated'),
       ],
       '#rows' => $rows,
